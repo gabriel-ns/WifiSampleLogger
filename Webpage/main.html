@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ESP8266 WiFi Sample Server</title>
+
+    <style>
+        body {
+            text-align: center;
+            font-family: Calibri;
+            margin: 0;
+        }
+
+        button {
+            border: 0;
+            border-radius: 0.3rem;
+            color: #fff;
+            line-height: 2.4rem;
+            font-size: 1.2rem;
+            width: 15%;
+        }
+        .btn_blue {
+            background-color: darkblue;
+        }
+        .btn_yellow {
+            background-color: goldenrod;
+        }
+        .btn_red {
+            background-color: firebrick;
+        }
+
+    </style>
+</head>
+<body>
+<p>
+<h1>
+    Control Station
+</h1>
+</p>
+
+<p>
+    <h3> Humidity = 25%</h3>
+    <h3> Temperature = 25 C</h3>
+</p>
+
+<div>
+    <p>
+        <a href="?red_led=1"><button type="button" class="btn_red">Click Me!</button></a>
+        <a href="?blue_led=1"><button type="button" class="btn_blue">Click Me!</button></a>
+        <a href="?green_led=1"><button type="button" class="btn_yellow">Click Me!</button></a>
+    </p>
+</div>
+
+<div><iframe width="600" height="371" seamless frameborder="0" scrolling="no" src="https://docs.google.com/spreadsheets/d/e/2PACX-1vT5tD9hMdmRtwVtoE8fbbmwP7ssut8-PKcz-qzWsnZfGFFoQRBfjuOV-MlVYKBsUYx5b9NnrnK8v6lg/pubchart?oid=816906948&amp;format=interactive"></iframe></div>;
+<div><iframe width="600" height="371" seamless frameborder="0" scrolling="no" src="https://docs.google.com/spreadsheets/d/e/2PACX-1vT5tD9hMdmRtwVtoE8fbbmwP7ssut8-PKcz-qzWsnZfGFFoQRBfjuOV-MlVYKBsUYx5b9NnrnK8v6lg/pubchart?oid=1980701199&amp;format=interactive"></iframe></div>;
+
+</body>
+</html>
