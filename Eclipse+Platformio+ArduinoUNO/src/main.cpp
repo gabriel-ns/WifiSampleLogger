@@ -17,13 +17,9 @@
 #include <Arduino.h>
 #include <SoftwareSerial.h>
 
-#define SERIAL_LOW_SPEED 19200
+#define SERIAL_LOW_SPEED 9600
 #define SERIAL_HIGH_SPEED 115200
 
-SoftwareSerial SerialWifi(2,3);
-
-uint32_t lastDataSent = millis();
-uint16_t dataInterval = 60000;
 
 static bool espCheckPresence(uint16_t timeout, uint8_t retries);
 static void espBegin();
@@ -35,8 +31,13 @@ static String sendModemCommand(String cmd, uint16_t timeout, uint8_t retries = 1
 static void serverProccessClientCommand();
 
 String graph = "<div><iframe width=\"600\" height=\"371\" seamless frameborder=\"0\" scrolling=\"no\" src=\"https://docs.google.com/spreadsheets/d/e/2PACX-1vR8s42u9PIdtwFOw-40zyTslirCnkRh3qC8VLIpW0g0hfNXG_YMYwXO9wqkZMWlw2mI-HxiabLMg6jz/pubchart?oid=249031932&amp;format=interactive\"></iframe></div>";
-String SSID = "ssid";
-String PW = "password";
+
+SoftwareSerial SerialWifi(2,3);
+
+uint32_t lastDataSent = millis();
+uint16_t dataInterval = 60000;
+String SSID = "UFABC";
+String PW = "85265";
 
 void setup()
 {
@@ -62,6 +63,11 @@ void loop()
 		lastDataSent = millis();
 		wifiSendData(millis());
 	}
+	if(Serial.available() > 0)
+	{
+		Serial.read();
+		sendModemCommand("AT+CIFSR\r\n", 1000);
+	}
 }
 
 static String sendModemCommand(String cmd, uint16_t timeout, uint8_t retries)
@@ -70,7 +76,7 @@ static String sendModemCommand(String cmd, uint16_t timeout, uint8_t retries)
 	String response = "";
 	uint8_t ret = retries;
 
-	/* Tenta enviar o comando. Se não obtiver sucesso, tentara retries vezes */
+	/* Tenta enviar o comando. Se não obtiver sucesso, tentará retries vezes */
 	do{
 		Serial.println("Sending: " + cmd);
 		SerialWifi.print(cmd);
@@ -125,7 +131,7 @@ static void espBegin()
 
 	/* Procura o ESP com BaudRate = 115200 */
 	Serial.println("Looking for ESP8266 at SERIAL_HIGH_SPEED");
-	presence = espCheckPresence(100, 10);
+	presence = espCheckPresence(200, 10);
 
 	/* Se ele for encontrado, enviar um comando de reset,
 	 * se não, procura o sensor com baud = 19200 */
@@ -139,7 +145,7 @@ static void espBegin()
 		do
 		{
 			Serial.println("Waiting for reset..");
-		}while( espCheckPresence(100, 10));
+		}while( espCheckPresence(500, 10));
 
 		/* Configura o ESP para Baud = 19200 */
 		Serial.println("Setting the new baud rate");
@@ -153,7 +159,7 @@ static void espBegin()
 		SerialWifi.end();
 		SerialWifi.begin(SERIAL_LOW_SPEED);
 		Serial.println("Looking for ESP8266 at SERIAL_LOW_SPEED");
-		presence = espCheckPresence(100, 10);
+		presence = espCheckPresence(200, 10);
 
 		/* Se o ESP for encontrado com baud = 19200, enviamos o comando de reset
 		 * e depois o configuramos para a velocidade de 19200.
@@ -172,7 +178,7 @@ static void espBegin()
 			do
 			{
 				Serial.println("Waiting for reset..");
-			}while( espCheckPresence(100, 10));
+			}while( espCheckPresence(500, 10));
 
 			/* Configura a nova velocidade */
 			Serial.println("Setting the new baud rate");
@@ -187,9 +193,9 @@ static void espBegin()
 	}
 
 	/* Finaliza a função sempre com o ESP disponível já na velocidade de trabalho*/
-	Serial.println("Restarting Serial with 19200");
+	Serial.println("Restarting Serial with SERIAL_LOW_SPEED");
 	SerialWifi.end();
-	SerialWifi.begin(19200);
+	SerialWifi.begin(SERIAL_LOW_SPEED);
 }
 
 static void wifiStartServer()
@@ -219,7 +225,7 @@ static void wifiSetup()
 	sendModemCommand("AT+CWMODE=1\r\n", 1000);
 }
 
-/* Responde a conexÃ£o com o servidor */
+/* Responde a conexão com o servidor */
 static void handleServerClient()
 {
 	if(SerialWifi.available() > 0)
@@ -228,13 +234,11 @@ static void handleServerClient()
 		if(SerialWifi.find((char *) "+IPD,"))
 		{
 			Serial.println("Client connected");
-
 			/* Recebe o identificador de conexão */
 			int connId = SerialWifi.read() - '0';
 
 			/* Processa os parâmetros recebidos */
 			serverProccessClientCommand();
-
 
 			/* Envia a página HTML dividida em partes */
 			/* HTML HEAD */
@@ -249,12 +253,12 @@ static void handleServerClient()
 			page = F("<body><p><h1>Local Station</h1></p>");
 			page += F("<h2>Led Control</h2>");
 			page += F("<div><a href=\"?led1=on\"><button type=\"button\" >Turn On</button></a></div>");
-			page += F("<div><a href=\"?led1=off\"><button type=\"button\">Turn Off</button></a></div>");
 			sendModemCommand("AT+CIPSEND=" + String(connId) + "," + page.length() + "\r\n", 300);
 			SerialWifi.print(page);
 			delay(250);
 
-			page = F("<h2>Available data</h2><p><h3>Running time: ");
+			page = F("<div><a href=\"?led1=off\"><button type=\"button\">Turn Off</button></a></div>");
+			page += F("<h2>Available data</h2><p><h3>Running time: ");
 			page += String(millis());
 			page += F(" ms</h3></p>");
 			page += F("</body></html>\r\n");
