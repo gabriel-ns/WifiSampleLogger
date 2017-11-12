@@ -19,7 +19,8 @@
 
 #define SERIAL_LOW_SPEED 9600
 #define SERIAL_HIGH_SPEED 115200
-
+#define WIFI_RX_PIN 2
+#define WIFI_TX_PIN 3
 
 static bool espCheckPresence(uint16_t timeout, uint8_t retries);
 static void espBegin();
@@ -32,7 +33,7 @@ static void serverProccessClientCommand();
 
 String graph = "<div><iframe width=\"600\" height=\"371\" seamless frameborder=\"0\" scrolling=\"no\" src=\"https://docs.google.com/spreadsheets/d/e/2PACX-1vR8s42u9PIdtwFOw-40zyTslirCnkRh3qC8VLIpW0g0hfNXG_YMYwXO9wqkZMWlw2mI-HxiabLMg6jz/pubchart?oid=249031932&amp;format=interactive\"></iframe></div>";
 
-SoftwareSerial SerialWifi(2,3);
+SoftwareSerial SerialWifi(WIFI_RX_PIN,WIFI_TX_PIN);
 
 uint32_t lastDataSent = millis();
 uint16_t dataInterval = 60000;
